@@ -2,8 +2,6 @@ import pygame
 from util import *
 
 CELL_SIZE = [WIDTH // row_n, HEIGHT // col_n]
-print(CELL_SIZE[0])
-print(CELL_SIZE[1])
 
 def main():
     pygame.init()
@@ -41,22 +39,24 @@ def main():
 
         if not no_key_pressed:
             # Solo permite un movimiento por ciclo de juego
+            print('\n\nmov\n')
             moved = False
+            neigbors = mapa.get_neighbors(robot.pos)
+            dir = get_highest(neigbors)
+            
+            print(f'neighbor: {neigbors} dir: {dir} value: {neigbors[dir]}')
+            robot.q_learn(dir, neigbors[dir])
 
             if keys[pygame.K_w] and not moved:
-                dir = 0
                 robot.move(dir)
                 moved = True
             if keys[pygame.K_d] and not moved:
-                dir = 1
                 robot.move(dir)
                 moved = True
             if keys[pygame.K_s] and not moved:
-                dir = 2
                 robot.move(dir)
                 moved = True
             if keys[pygame.K_a] and not moved:
-                dir = 3
                 robot.move(dir)
                 moved = True
 
@@ -65,8 +65,7 @@ def main():
             if keys[pygame.K_ESCAPE]:
                 return 1
 
-            neigbors = mapa.get_neighbors(robot.pos)
-            robot.q_learn(dir, neigbors[dir])
+            robot.info()
 
         # draw
         mapa.draw_grid()

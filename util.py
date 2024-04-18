@@ -1,4 +1,5 @@
 import pygame
+import random
 # Definir colores
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -21,9 +22,23 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 
-class Todo:
-    def __init__(self):
-        pass
+import random
+
+def get_highest(array):
+    # Find the maximum number in the array
+    max_value = max(array)
+    
+    # Find all the indices where the maximum number occurs
+    max_indices = [i for i, num in enumerate(array) if num == max_value]
+    
+    # If there are more than one maximum numbers, choose one randomly
+    if len(max_indices) > 1:
+        chosen_index = random.choice(max_indices)
+        return chosen_index
+    else:
+        return max_indices[0]
+
+
 
 class Objeto:
     def __init__(self, screen):
@@ -38,8 +53,8 @@ class Ser_vivo(Objeto):
         self.q_map = [[[0 for _ in range(4)] for _ in range(grid_size[0])] for _ in range(grid_size[1])]
     
     def info(self):
-        print(f'valor posicion actual {self.pos}: ', self.q_map[self.pos['y']][self.pos['x']])
-        print('valor tabla q_map\n')
+        print(f'posicion actual {self.pos} vecinos: ', self.q_map[self.pos['y']][self.pos['x']])
+        print('q_map\n')
         for row in self.q_map:
             print(row)
 
@@ -52,7 +67,7 @@ class Ser_vivo(Objeto):
         )
 
     def move(self, dir):
-        print('direccion: ', dir)
+        print('moviendo en direccion: ', dir)
 
         if(dir == 0):
             if self.pos['y'] > 0:
@@ -66,7 +81,6 @@ class Ser_vivo(Objeto):
         if(dir == 3):
             if self.pos['x'] > 0:
                 self.pos['x'] = self.pos['x'] - 1
-        self.info()
 
     def q_learn(self, dir, value):
         self.q_map[self.pos['y']][self.pos['x']][dir] += value
