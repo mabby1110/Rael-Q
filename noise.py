@@ -1,69 +1,79 @@
 import pygame
-import util
+from util import *
 
-# Definir colores
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-
-# Tamaño de la ventana
-WIDTH = 800
-HEIGHT = 800
-
-# Tamaño del grid y celdas
-n = 10  # número de columnas
-m = 10  # número de filas
-CELL_SIZE = [WIDTH // n, HEIGHT // m]
+CELL_SIZE = [WIDTH // row_n, HEIGHT // col_n]
 print(CELL_SIZE[0])
 print(CELL_SIZE[1])
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     clock = pygame.time.Clock()
     running = True
-
+    dir = 0
     # inicializar mapa y objetos
 
-    mapa = util.mapa(
+    mapa = Mapa(
         screen=screen,
         grid_size=[10, 10],
         cell_size=CELL_SIZE
     )
-    robot = util.ser_vivo(
+    robot = Ser_vivo(
         screen=screen,
         pos=[0,0],
         size=CELL_SIZE,
-        color=(255, 0, 255)
+        color=(255, 0, 255),
+        grid_size=[10, 10]
     )
+
+    robot.info()
 
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-
-        # update logic
+        
+        # Obtiene las teclas presionadas
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_w]:
-            robot.move(0)
-        if keys[pygame.K_d]:
-            robot.move(1)
-        if keys[pygame.K_s]:
-            robot.move(2)
-        if keys[pygame.K_a]:
-            robot.move(3)
-        if keys[pygame.K_F10]:
-            return 0
-        if keys[pygame.K_ESCAPE]:
-            return 1
-            
+
+        # Verifica si no se está presionando ninguna tecla
+        no_key_pressed = all(key == 0 for key in keys)
+
+        if not no_key_pressed:
+            # Solo permite un movimiento por ciclo de juego
+            moved = False
+
+            if keys[pygame.K_w] and not moved:
+                dir = 0
+                robot.move(dir)
+                moved = True
+            if keys[pygame.K_d] and not moved:
+                dir = 1
+                robot.move(dir)
+                moved = True
+            if keys[pygame.K_s] and not moved:
+                dir = 2
+                robot.move(dir)
+                moved = True
+            if keys[pygame.K_a] and not moved:
+                dir = 3
+                robot.move(dir)
+                moved = True
+
+            if keys[pygame.K_F10]:
+                return 0
+            if keys[pygame.K_ESCAPE]:
+                return 1
+
+            neigbors = mapa.get_neighbors(robot.pos)
+            robot.q_learn(dir, neigbors[dir])
+
         # draw
         mapa.draw_grid()
         robot.draw()
-
         pygame.display.flip()
-        clock.tick(30)
+        clock.tick(10)
+
 
 if __name__ == '__main__':
     state = 0
