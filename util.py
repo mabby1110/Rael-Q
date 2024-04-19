@@ -24,21 +24,16 @@ BLUE = (0, 0, 255)
 
 import random
 
-def get_highest(array):
-    # Find the maximum number in the array
-    max_value = max(array)
+def choose_highest_random(arr):
+    if not arr:
+        return None  # Return None for empty arrays
     
-    # Find all the indices where the maximum number occurs
-    max_indices = [i for i, num in enumerate(array) if num == max_value]
-    
-    # If there are more than one maximum numbers, choose one randomly
-    if len(max_indices) > 1:
-        chosen_index = random.choice(max_indices)
-        return chosen_index
+    max_num = max(arr)
+    positive_indices = [i for i, x in enumerate(arr) if x == max_num and x >= 0]
+    if positive_indices:
+        return random.choice(positive_indices)
     else:
-        return max_indices[0]
-
-
+        return arr.index(max_num)
 
 class Objeto:
     def __init__(self, screen):
@@ -51,12 +46,14 @@ class Ser_vivo(Objeto):
         self.size = size
         self.color = color
         self.q_map = [[[0 for _ in range(4)] for _ in range(grid_size[0])] for _ in range(grid_size[1])]
+        self.state = 0
     
     def info(self):
-        print(f'posicion actual {self.pos} vecinos: ', self.q_map[self.pos['y']][self.pos['x']])
-        print('q_map\n')
+        print('q_map completo\n')
         for row in self.q_map:
-            print(row)
+            formatted = [[round(n, 4) for n in col] for col in row]
+            print(formatted)
+        print(f'\npaso: {self.state}\n\n')
 
     def draw(self):
         pygame.draw.rect(
@@ -67,23 +64,18 @@ class Ser_vivo(Objeto):
         )
 
     def move(self, dir):
-        print('moviendo en direccion: ', dir)
-
         if(dir == 0):
             if self.pos['y'] > 0:
-                self.pos['y'] = self.pos['y'] - 1
+                self.pos['y'] -= 1
         if(dir == 1):
             if self.pos['x'] < col_n-1:
-                self.pos['x'] = self.pos['x'] + 1
+                self.pos['x'] += 1
         if(dir == 2):
             if self.pos['y'] < col_n-1:
-                self.pos['y'] = self.pos['y'] + 1
+                self.pos['y'] += 1
         if(dir == 3):
             if self.pos['x'] > 0:
-                self.pos['x'] = self.pos['x'] - 1
-
-    def q_learn(self, dir, value):
-        self.q_map[self.pos['y']][self.pos['x']][dir] += value
+                self.pos['x'] -= 1
 
 class Mapa(Objeto):
     def __init__(self, screen, grid_size, cell_size):
@@ -97,9 +89,9 @@ class Mapa(Objeto):
         cy = self.cell_size[1]
         for y, row in enumerate(self.map):
             for x, value in enumerate(row):
-                color = BLACK if value == -1 else (RED if value == 1 else GREEN)
-                pygame.draw.rect(self.screen, WHITE, (x * cx, y * cy, cx, cy), 1)
-                pygame.draw.rect(self.screen, WHITE, (x * cx, y * cy, cx, cy), 1)
+                color = BLACK if value == -1 else (RED if value == 0 else GREEN)
+                pygame.draw.rect(self.screen, color, (x * cx, y * cy, cx, cy), 1)
+                pygame.draw.rect(self.screen, color, (x * cx, y * cy, cx, cy), 1)
 
     def get_neighbors(self, current_pos):
         neighbors = []
